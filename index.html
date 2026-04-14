@@ -67,19 +67,6 @@
       display: block;
     }
 
-    /* シネマスコープバー（上下の黒帯） */
-    .scope-bar {
-      position: fixed;
-      left: 0;
-      right: 0;
-      height: 10vh;
-      background: var(--black);
-      z-index: 10;
-      transition: height 0.8s cubic-bezier(0.76, 0, 0.24, 1);
-    }
-    .scope-bar.top { top: 0; }
-    .scope-bar.bottom { bottom: 0; }
-
     /* ブランドロゴ */
     .brand {
       position: fixed;
@@ -201,10 +188,6 @@
   <div class="cursor" id="cursor"></div>
   <div class="cursor-ring" id="cursorRing"></div>
 
-  <!-- シネマスコープバー -->
-  <div class="scope-bar top" id="topBar"></div>
-  <div class="scope-bar bottom" id="bottomBar"></div>
-
   <!-- ブランドロゴ（動画上に重ねる） -->
   <div class="brand" id="brand">
     <div class="brand-title">Next Stage</div>
@@ -251,17 +234,9 @@
       requestAnimationFrame(animateRing);
     })();
 
-    // シネマスコープバーをフェードアウト（動画開始後）
-    const topBar = document.getElementById('topBar');
-    const bottomBar = document.getElementById('bottomBar');
-    setTimeout(() => {
-      topBar.style.height = '0';
-      bottomBar.style.height = '0';
-    }, 300);
-
     // 1秒後に動画再生開始
     const video = document.getElementById('mainVideo');
-    setTimeout(() => { video.play(); }, 1000);
+    setTimeout(() => { video.play(); }, 2000);
     const brand = document.getElementById('brand');
     const endedOverlay = document.getElementById('endedOverlay');
     const replayBtn = document.getElementById('replayBtn');
