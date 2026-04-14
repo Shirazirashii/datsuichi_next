@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next Stage</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Montserrat:wght@100;200&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gold: #b8956a;
+      --dim: rgba(0, 0, 0, 0.55);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--black);
+      cursor: none;
+    }
+
+    /* カスタムカーソル */
+    .cursor {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, opacity 0.3s ease;
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(184, 149, 106, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* 動画ラッパー */
+    .video-wrapper {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* シネマスコープバー（上下の黒帯） */
+    .scope-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      height: 10vh;
+      background: var(--black);
+      z-index: 10;
+      transition: height 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    .scope-bar.top { top: 0; }
+    .scope-bar.bottom { bottom: 0; }
+
+    /* ブランドロゴ */
+    .brand {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      animation: fadeInBrand 2s ease 0.5s forwards;
+    }
+
+    .brand-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      letter-spacing: 0.3em;
+      color: var(--white);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .brand-subtitle {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 100;
+      font-size: clamp(0.55rem, 1.1vw, 0.8rem);
+      letter-spacing: 0.55em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-top: 1rem;
+    }
+
+    .brand-line {
+      width: 0;
+      height: 1px;
+      background: var(--gold);
+      margin: 0.75rem auto;
+      animation: expandLine 1.5s ease 1.5s forwards;
+    }
+
+    /* 再生終了後の画面 */
+    .ended-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.5s ease;
+    }
+
+    .ended-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .ended-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(1.2rem, 3vw, 2.2rem);
+      color: var(--white);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+    }
+
+    .replay-btn {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 200;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid rgba(184, 149, 106, 0.4);
+      padding: 0.9rem 2.5rem;
+      cursor: none;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    .replay-btn:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    /* 右下の時間インジケーター */
+    .time-indicator {
+      position: fixed;
+      bottom: 12vh;
+      right: 3vw;
+      z-index: 20;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 100;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      opacity: 0;
+      animation: fadeInBrand 1s ease 2s forwards;
+    }
+
+    .progress-track {
+      width: 80px;
+      height: 1px;
+      background: rgba(255,255,255,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0%;
+      background: var(--gold);
+      transition: width 0.5s linear;
+    }
+
+    /* キーフレーム */
+    @keyframes fadeInBrand {
+      from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
+      to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    @keyframes expandLine {
+      from { width: 0; }
+      to   { width: 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- カスタムカーソル -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- シネマスコープバー -->
+  <div class="scope-bar top" id="topBar"></div>
+  <div class="scope-bar bottom" id="bottomBar"></div>
+
+  <!-- ブランドロゴ（動画上に重ねる） -->
+  <div class="brand" id="brand">
+    <div class="brand-title">Next Stage</div>
+    <div class="brand-line"></div>
+    <div class="brand-subtitle">Coming Soon</div>
+  </div>
+
+  <!-- フルスクリーン動画 -->
+  <div class="video-wrapper">
+    <video id="mainVideo" autoplay playsinline muted>
+      <source src="next-stage/coming-soon.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- 再生終了後のオーバーレイ -->
+  <div class="ended-overlay" id="endedOverlay">
+    <div class="ended-text">— Fin —</div>
+    <button class="replay-btn" id="replayBtn">Replay</button>
+  </div>
+
+  <!-- 右下の進行インジケーター -->
+  <div class="time-indicator" id="timeIndicator">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <span id="timeDisplay">0:00</span>
+  </div>
+
+  <script>
+    // カスタムカーソル
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursor.style.left = mouseX + 'px';
+      cursor.style.top  = mouseY + 'px';
+    });
+
+    (function animateRing() {
+      ringX += (mouseX - ringX) * 0.12;
+      ringY += (mouseY - ringY) * 0.12;
+      ring.style.left = ringX + 'px';
+      ring.style.top  = ringY + 'px';
+      requestAnimationFrame(animateRing);
+    })();
+
+    // シネマスコープバーをフェードアウト（動画開始後）
+    const topBar = document.getElementById('topBar');
+    const bottomBar = document.getElementById('bottomBar');
+    setTimeout(() => {
+      topBar.style.height = '0';
+      bottomBar.style.height = '0';
+    }, 300);
+
+    // 動画コントロール
+    const video = document.getElementById('mainVideo');
+    const brand = document.getElementById('brand');
+    const endedOverlay = document.getElementById('endedOverlay');
+    const replayBtn = document.getElementById('replayBtn');
+    const progressFill = document.getElementById('progressFill');
+    const timeDisplay = document.getElementById('timeDisplay');
+
+    // 動画が進んだらロゴをフェードアウト
+    video.addEventListener('timeupdate', () => {
+      const pct = (video.currentTime / video.duration) * 100;
+      progressFill.style.width = pct + '%';
+
+      const s = Math.floor(video.currentTime);
+      timeDisplay.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+
+      if (video.currentTime > 3) {
+        brand.style.opacity = '0';
+        brand.style.transition = 'opacity 1.5s ease';
+      }
+    });
+
+    // 再生終了
+    video.addEventListener('ended', () => {
+      endedOverlay.classList.add('visible');
+    });
+
+    // リプレイ
+    replayBtn.addEventListener('click', () => {
+      endedOverlay.classList.remove('visible');
+      video.currentTime = 0;
+      video.play();
+      brand.style.opacity = '1';
+      brand.style.transition = 'opacity 1s ease';
+    });
+
+    // ホバー時にリングを拡大
+    replayBtn.addEventListener('mouseenter', () => {
+      ring.style.width = '60px';
+      ring.style.height = '60px';
+    });
+    replayBtn.addEventListener('mouseleave', () => {
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+    });
+  </script>
+</body>
+</html>
