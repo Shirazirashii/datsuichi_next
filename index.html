@@ -83,9 +83,9 @@
     /* ブランドロゴ */
     .brand {
       position: fixed;
-      top: 50%;
+      top: 8vh;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       z-index: 20;
       text-align: center;
       pointer-events: none;
@@ -96,29 +96,11 @@
     .brand-title {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 300;
-      font-size: clamp(2.5rem, 6vw, 5rem);
-      letter-spacing: 0.3em;
+      font-size: clamp(2rem, 5vw, 4rem);
+      letter-spacing: 0.35em;
       color: var(--white);
       text-transform: uppercase;
       line-height: 1;
-    }
-
-    .brand-subtitle {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 100;
-      font-size: clamp(0.55rem, 1.1vw, 0.8rem);
-      letter-spacing: 0.55em;
-      color: var(--gold);
-      text-transform: uppercase;
-      margin-top: 1rem;
-    }
-
-    .brand-line {
-      width: 0;
-      height: 1px;
-      background: var(--gold);
-      margin: 0.75rem auto;
-      animation: expandLine 1.5s ease 1.5s forwards;
     }
 
     /* 再生終了後の画面 */
@@ -208,13 +190,8 @@
 
     /* キーフレーム */
     @keyframes fadeInBrand {
-      from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
-      to   { opacity: 1; transform: translate(-50%, -50%); }
-    }
-
-    @keyframes expandLine {
-      from { width: 0; }
-      to   { width: 60px; }
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
   </style>
 </head>
@@ -231,20 +208,17 @@
   <!-- ブランドロゴ（動画上に重ねる） -->
   <div class="brand" id="brand">
     <div class="brand-title">Next Stage</div>
-    <div class="brand-line"></div>
-    <div class="brand-subtitle">Coming Soon</div>
   </div>
 
   <!-- フルスクリーン動画 -->
   <div class="video-wrapper">
-    <video id="mainVideo" autoplay playsinline muted>
-      <source src="Next-stage/coming-soon.mp4" type="video/mp4">
+    <video id="mainVideo" playsinline muted>
+      <source src="Next-stage/coming-soon.mp4" type="video/mp4">n
     </video>
   </div>
 
   <!-- 再生終了後のオーバーレイ -->
   <div class="ended-overlay" id="endedOverlay">
-    <div class="ended-text">— Fin —</div>
     <button class="replay-btn" id="replayBtn">Replay</button>
   </div>
 
@@ -285,8 +259,9 @@
       bottomBar.style.height = '0';
     }, 300);
 
-    // 動画コントロール
+    // 1秒後に動画再生開始
     const video = document.getElementById('mainVideo');
+    setTimeout(() => { video.play(); }, 1000);
     const brand = document.getElementById('brand');
     const endedOverlay = document.getElementById('endedOverlay');
     const replayBtn = document.getElementById('replayBtn');
@@ -316,7 +291,7 @@
     replayBtn.addEventListener('click', () => {
       endedOverlay.classList.remove('visible');
       video.currentTime = 0;
-      video.play();
+      setTimeout(() => { video.play(); }, 1000);
       brand.style.opacity = '1';
       brand.style.transition = 'opacity 1s ease';
     });
