@@ -53,11 +53,16 @@
       transition: transform 0.18s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
     }
 
-    /* 動画ラッパー */
+    /* 動画ラッパー：四辺にパディング、上部はロゴ分を確保 */
     .video-wrapper {
       position: fixed;
-      inset: 0;
+      top: 80px;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
       z-index: 0;
+      border-radius: 4px;
+      overflow: hidden;
     }
 
     video {
@@ -80,10 +85,10 @@
     .scope-bar.top { top: 0; }
     .scope-bar.bottom { bottom: 0; }
 
-    /* ブランドロゴ */
+    /* ブランドロゴ：上部に固定 */
     .brand {
       position: fixed;
-      top: 8vh;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 20;
@@ -96,124 +101,71 @@
     .brand-title {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 300;
-      font-size: clamp(2rem, 5vw, 4rem);
-      letter-spacing: 0.35em;
+      font-size: clamp(1.6rem, 3.5vw, 3rem);
+      letter-spacing: 0.3em;
       color: var(--white);
       text-transform: uppercase;
       line-height: 1;
     }
 
-    /* 再生前スプラッシュ画面 */
-    .play-screen {
+    /* 再生終了後の画面 */
+    .ended-overlay {
       position: fixed;
       inset: 0;
       background: var(--black);
-      z-index: 40;
+      z-index: 30;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3rem;
-      opacity: 1;
-      transition: opacity 1.2s ease;
-    }
-
-    .play-screen.hidden {
       opacity: 0;
       pointer-events: none;
+      transition: opacity 1.5s ease;
     }
 
-    .play-logo {
+    .ended-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .ended-text {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 300;
-      font-size: clamp(2rem, 5vw, 4rem);
-      letter-spacing: 0.35em;
+      font-size: clamp(1.2rem, 3vw, 2.2rem);
       color: var(--white);
-      text-transform: uppercase;
-      line-height: 1;
-    }
-
-    .play-btn {
-      width: 80px;
-      height: 80px;
-      border: 1px solid rgba(184, 149, 106, 0.5);
-      border-radius: 50%;
-      background: none;
-      cursor: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color 0.3s ease, transform 0.3s ease;
-      position: relative;
-    }
-
-    .play-btn::after {
-      content: '';
-      display: block;
-      width: 0;
-      height: 0;
-      border-top: 12px solid transparent;
-      border-bottom: 12px solid transparent;
-      border-left: 20px solid var(--gold);
-      margin-left: 5px;
-      transition: border-left-color 0.3s ease;
-    }
-
-    .play-btn:hover {
-      border-color: var(--gold);
-      transform: scale(1.1);
-    }
-
-    .play-hint {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 100;
-      font-size: 0.6rem;
-      letter-spacing: 0.5em;
-      color: rgba(255, 255, 255, 0.3);
-      text-transform: uppercase;
-      margin-top: -1.5rem;
-    }
-
-    /* 右下の時間インジケーター */
-    .time-indicator {
-      position: fixed;
-      bottom: 12vh;
-      right: 3vw;
-      z-index: 20;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 100;
-      font-size: 0.65rem;
       letter-spacing: 0.25em;
-      color: rgba(255, 255, 255, 0.35);
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      opacity: 0;
-      animation: fadeInBrand 1s ease 2s forwards;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
     }
 
-    .progress-track {
-      width: 80px;
-      height: 1px;
-      background: rgba(255,255,255,0.15);
-      position: relative;
-      overflow: hidden;
+    .replay-btn {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 200;
+      font-size: 0.7rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid rgba(184, 149, 106, 0.4);
+      padding: 0.9rem 2.5rem;
+      cursor: none;
+      transition: background 0.4s ease, color 0.4s ease;
     }
 
-    .progress-fill {
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      width: 0%;
+    .replay-btn:hover {
       background: var(--gold);
-      transition: width 0.5s linear;
+      color: var(--black);
     }
 
     /* キーフレーム */
     @keyframes fadeInBrand {
       from { opacity: 0; }
       to   { opacity: 1; }
+    }
+
+    @keyframes expandLine {
+      from { width: 0; }
+      to   { width: 60px; }
     }
   </style>
 </head>
@@ -227,31 +179,22 @@
   <div class="scope-bar top" id="topBar"></div>
   <div class="scope-bar bottom" id="bottomBar"></div>
 
-  <!-- スプラッシュ再生画面 -->
-  <div class="play-screen" id="playScreen">
-    <div class="play-logo">Next Stage</div>
-    <button class="play-btn" id="playBtn"></button>
-    <div class="play-hint">Click to Play</div>
-  </div>
-
-  <!-- ブランドロゴ（動画上に重ねる） -->
+  <!-- ブランドロゴ（上部固定） -->
   <div class="brand" id="brand">
     <div class="brand-title">Next Stage</div>
   </div>
 
   <!-- フルスクリーン動画 -->
   <div class="video-wrapper">
-    <video id="mainVideo" playsinline>
+    <video id="mainVideo" autoplay playsinline muted>
       <source src="Next-stage/coming-soon.mp4" type="video/mp4">
     </video>
   </div>
 
-  <!-- 右下の進行インジケーター -->
-  <div class="time-indicator" id="timeIndicator">
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-    <span id="timeDisplay">0:00</span>
+  <!-- 再生終了後のオーバーレイ -->
+  <div class="ended-overlay" id="endedOverlay">
+    <div class="ended-text">— Fin —</div>
+    <button class="replay-btn" id="replayBtn">Replay</button>
   </div>
 
   <script>
@@ -278,51 +221,48 @@
     // シネマスコープバーをフェードアウト（動画開始後）
     const topBar = document.getElementById('topBar');
     const bottomBar = document.getElementById('bottomBar');
+    setTimeout(() => {
+      topBar.style.height = '0';
+      bottomBar.style.height = '0';
+    }, 300);
 
-    // 動画・UI要素
+    // 動画コントロール
     const video = document.getElementById('mainVideo');
     const brand = document.getElementById('brand');
-    const progressFill = document.getElementById('progressFill');
-    const timeDisplay = document.getElementById('timeDisplay');
-    const playScreen = document.getElementById('playScreen');
-    const playBtn = document.getElementById('playBtn');
-
-    // ▶ PLAYボタンで再生開始
-    function startPlayback() {
-      playScreen.classList.add('hidden');
-      setTimeout(() => {
-        topBar.style.height = '0';
-        bottomBar.style.height = '0';
-        video.play();
-      }, 400);
-    }
-
-    playBtn.addEventListener('click', startPlayback);
-
-    // ホバー時にリングを拡大（PLAYボタン）
-    playBtn.addEventListener('mouseenter', () => {
-      ring.style.width = '100px';
-      ring.style.height = '100px';
-    });
-    playBtn.addEventListener('mouseleave', () => {
-      ring.style.width = '36px';
-      ring.style.height = '36px';
-    });
+    const endedOverlay = document.getElementById('endedOverlay');
+    const replayBtn = document.getElementById('replayBtn');
 
     // 動画が進んだらロゴをフェードアウト
     video.addEventListener('timeupdate', () => {
-      const pct = (video.currentTime / video.duration) * 100;
-      progressFill.style.width = pct + '%';
-
-      const s = Math.floor(video.currentTime);
-      timeDisplay.textContent = `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
-
       if (video.currentTime > 3) {
         brand.style.opacity = '0';
         brand.style.transition = 'opacity 1.5s ease';
       }
     });
 
+    // 再生終了
+    video.addEventListener('ended', () => {
+      endedOverlay.classList.add('visible');
+    });
+
+    // リプレイ
+    replayBtn.addEventListener('click', () => {
+      endedOverlay.classList.remove('visible');
+      video.currentTime = 0;
+      video.play();
+      brand.style.opacity = '1';
+      brand.style.transition = 'opacity 1s ease';
+    });
+
+    // ホバー時にリングを拡大
+    replayBtn.addEventListener('mouseenter', () => {
+      ring.style.width = '60px';
+      ring.style.height = '60px';
+    });
+    replayBtn.addEventListener('mouseleave', () => {
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+    });
   </script>
 </body>
 </html>
