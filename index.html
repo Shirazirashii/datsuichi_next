@@ -108,53 +108,50 @@
       line-height: 1;
     }
 
-    /* 再生終了後の画面 */
-    .ended-overlay {
+    /* 暗転オーバーレイ */
+    .blackout {
       position: fixed;
-      inset: 0;
+      top: 80px;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
       background: var(--black);
       z-index: 30;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 1.5s ease;
+      transition: opacity 0.5s ease;
+      border-radius: 4px;
     }
 
-    .ended-overlay.visible {
+    .blackout.active {
       opacity: 1;
       pointer-events: all;
     }
 
-    .ended-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: clamp(1.2rem, 3vw, 2.2rem);
-      color: var(--white);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      margin-bottom: 2.5rem;
+    /* エンディング画像 */
+    .ending-image {
+      position: fixed;
+      top: 80px;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      z-index: 31;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      border-radius: 4px;
+      overflow: hidden;
     }
 
-    .replay-btn {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 200;
-      font-size: 0.7rem;
-      letter-spacing: 0.4em;
-      color: var(--gold);
-      text-transform: uppercase;
-      background: none;
-      border: 1px solid rgba(184, 149, 106, 0.4);
-      padding: 0.9rem 2.5rem;
-      cursor: none;
-      transition: background 0.4s ease, color 0.4s ease;
+    .ending-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .replay-btn:hover {
-      background: var(--gold);
-      color: var(--black);
+    .ending-image.visible {
+      opacity: 1;
     }
 
     /* キーフレーム */
@@ -191,10 +188,12 @@
     </video>
   </div>
 
-  <!-- 再生終了後のオーバーレイ -->
-  <div class="ended-overlay" id="endedOverlay">
-    <div class="ended-text">— Fin —</div>
-    <button class="replay-btn" id="replayBtn">Replay</button>
+  <!-- 暗転レイヤー -->
+  <div class="blackout" id="blackout"></div>
+
+  <!-- エンディング画像 -->
+  <div class="ending-image" id="endingImage">
+    <img src="Next-stage/next-stage.png" alt="Next Stage">
   </div>
 
   <script>
@@ -229,8 +228,8 @@
     // 動画コントロール
     const video = document.getElementById('mainVideo');
     const brand = document.getElementById('brand');
-    const endedOverlay = document.getElementById('endedOverlay');
-    const replayBtn = document.getElementById('replayBtn');
+    const blackout = document.getElementById('blackout');
+    const endingImage = document.getElementById('endingImage');
 
     // 動画が進んだらロゴをフェードアウト
     video.addEventListener('timeupdate', () => {
@@ -240,28 +239,15 @@
       }
     });
 
-    // 再生終了
+    // 再生終了 → 0.5秒暗転 → 画像フェードイン
     video.addEventListener('ended', () => {
-      endedOverlay.classList.add('visible');
-    });
+      // Step1: 暗転
+      blackout.classList.add('active');
 
-    // リプレイ
-    replayBtn.addEventListener('click', () => {
-      endedOverlay.classList.remove('visible');
-      video.currentTime = 0;
-      video.play();
-      brand.style.opacity = '1';
-      brand.style.transition = 'opacity 1s ease';
-    });
-
-    // ホバー時にリングを拡大
-    replayBtn.addEventListener('mouseenter', () => {
-      ring.style.width = '60px';
-      ring.style.height = '60px';
-    });
-    replayBtn.addEventListener('mouseleave', () => {
-      ring.style.width = '36px';
-      ring.style.height = '36px';
+      // Step2: 0.5秒後に画像フェードイン
+      setTimeout(() => {
+        endingImage.classList.add('visible');
+      }, 500);
     });
   </script>
 </body>
