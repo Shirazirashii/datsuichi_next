@@ -28,6 +28,12 @@
       cursor: none;
     }
 
+    /* スマホはデフォルトカーソルを使用 */
+    @media (hover: none) and (pointer: coarse) {
+      html, body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+    }
+
     /* カスタムカーソル */
     .cursor {
       position: fixed;
@@ -65,11 +71,24 @@
       overflow: hidden;
     }
 
+    @media (max-width: 600px) {
+      .video-wrapper {
+        top: 60px;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+      }
+    }
+
     video {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain; /* スマホで動画全体が見えるように */
       display: block;
+    }
+
+    @media (min-width: 601px) {
+      video { object-fit: cover; }
     }
 
     /* シネマスコープバー（上下の黒帯） */
@@ -96,16 +115,22 @@
       pointer-events: none;
       opacity: 0;
       animation: fadeInBrand 2s ease 0.5s forwards;
+      white-space: nowrap;
     }
 
     .brand-title {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 300;
-      font-size: clamp(1.6rem, 3.5vw, 3rem);
+      font-size: clamp(1.2rem, 3.5vw, 3rem);
       letter-spacing: 0.3em;
       color: var(--white);
       text-transform: uppercase;
       line-height: 1;
+    }
+
+    @media (max-width: 600px) {
+      .brand { top: 14px; }
+      .brand-title { font-size: clamp(1rem, 5vw, 1.4rem); }
     }
 
     /* 暗転オーバーレイ：フルスクリーン */
@@ -133,6 +158,7 @@
       pointer-events: none;
       transition: opacity 0.5s ease;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       background: var(--black);
@@ -140,7 +166,7 @@
 
     .ending-image img {
       max-width: 100%;
-      max-height: 100%;
+      max-height: 100vh;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -149,6 +175,41 @@
 
     .ending-image.visible {
       opacity: 1;
+    }
+
+    /* ◀ メインページに戻るボタン */
+    .back-btn {
+      margin-top: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 999px;
+      background: #fdf6e3;
+      border: 1.5px solid #c9a87c;
+      color: #6b3a1f;
+      font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+      font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease, transform 0.5s ease, background 0.3s ease;
+    }
+
+    .back-btn.float-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .back-btn:hover {
+      background: #f5e8cc;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .back-btn { cursor: auto; }
     }
 
     /* キーフレーム */
@@ -191,6 +252,7 @@
   <!-- エンディング画像 -->
   <div class="ending-image" id="endingImage">
     <img src="Next-stage/next-stage.png" alt="Next Stage">
+    <a href="https://shirazirashii.github.io/Datsuichi-memorial/#ending" class="back-btn" id="backBtn">&#9664; メインページに戻る</a>
   </div>
 
   <script>
@@ -227,6 +289,7 @@
     const brand = document.getElementById('brand');
     const blackout = document.getElementById('blackout');
     const endingImage = document.getElementById('endingImage');
+    const backBtn = document.getElementById('backBtn');
 
     // 動画が進んだらロゴをフェードアウト
     video.addEventListener('timeupdate', () => {
@@ -236,21 +299,25 @@
       }
     });
 
-    // 再生終了 → ロゴ・上部黒帯を即フェードアウト → 0.5秒暗転 → 画像フェードイン
+    // 再生終了 → ロゴ・上部黒帯を即フェードアウト → 0.5秒暗転 → 画像フェードイン → 5秒後にボタンフロートイン
     video.addEventListener('ended', () => {
-      // ロゴと上部黒帯をフェードアウト
       brand.style.transition = 'opacity 0.5s ease';
       brand.style.opacity = '0';
       topBar.style.transition = 'height 0s, opacity 0.5s ease';
       topBar.style.opacity = '0';
 
-      // Step1: 暗転（フルスクリーン）
+      // Step1: 暗転
       blackout.classList.add('active');
 
       // Step2: 0.5秒後に画像フェードイン
       setTimeout(() => {
         endingImage.classList.add('visible');
       }, 500);
+
+      // Step3: 5.5秒後（画像表示から5秒後）にボタンフロートイン
+      setTimeout(() => {
+        backBtn.classList.add('float-in');
+      }, 5500);
     });
   </script>
 </body>
