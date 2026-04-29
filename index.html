@@ -262,7 +262,7 @@
   <!-- エンディング画像 -->
   <div class="ending-image" id="endingImage">
     <div class="ending-inner">
-      <img src="Next-stage/next-stage.png" alt="Next Stage">
+      <img id="endingImg" src="Next-stage/next-stage.png" alt="Next Stage">
       <a href="https://shirazirashii.github.io/Datsuichi-memorial/" class="back-btn" id="backBtn">&#9664; メインページに戻る</a>
     </div>
   </div>
@@ -301,7 +301,13 @@
     const brand = document.getElementById('brand');
     const blackout = document.getElementById('blackout');
     const endingImage = document.getElementById('endingImage');
+    const endingImg = document.getElementById('endingImg');
     const backBtn = document.getElementById('backBtn');
+
+    // PC用・スマホ用の画像を切り替え（414px以下をスマホ）
+    const PC_IMG = 'Next-stage/next-stage.png';
+    const SP_IMG = 'Next-stage/next-stage2.png';
+    endingImg.src = window.innerWidth <= 414 ? SP_IMG : PC_IMG;
 
     // 動画が進んだらロゴをフェードアウト
     video.addEventListener('timeupdate', () => {
