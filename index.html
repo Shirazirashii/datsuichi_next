@@ -149,7 +149,7 @@
       pointer-events: all;
     }
 
-    /* エンディング画像：フルスクリーン・16:9全体を収める */
+    /* エンディング画像：フルスクリーン・中央寄せコンテナ */
     .ending-image {
       position: fixed;
       inset: 0;
@@ -158,28 +158,39 @@
       pointer-events: none;
       transition: opacity 0.5s ease;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       background: var(--black);
     }
 
-    .ending-image img {
-      max-width: 100%;
+    .ending-image.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* 画像＋ボタンをまとめるラッパー（画像の実寸に合わせてボタンを重ねる） */
+    .ending-inner {
+      position: relative;
+      display: inline-flex; /* 画像の実寸に縮む */
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+
+    .ending-inner img {
+      display: block;
+      max-width: 100vw;
       max-height: 100vh;
       width: auto;
       height: auto;
       object-fit: contain;
-      display: block;
     }
 
-    .ending-image.visible {
-      opacity: 1;
-    }
-
-    /* ◀ メインページに戻るボタン */
+    /* ◀ メインページに戻るボタン：画像の上・下方に絶対配置 */
     .back-btn {
-      margin-top: 20px;
+      position: absolute;
+      bottom: 6%;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -189,19 +200,18 @@
       border: 1.5px solid #c9a87c;
       color: #6b3a1f;
       font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
-      font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+      font-size: clamp(0.75rem, 2vw, 0.9rem);
       font-weight: 500;
       text-decoration: none;
-      cursor: pointer;
       white-space: nowrap;
       opacity: 0;
-      transform: translateY(16px);
       transition: opacity 0.5s ease, transform 0.5s ease, background 0.3s ease;
+      cursor: pointer;
     }
 
     .back-btn.float-in {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(-50%) translateY(0);
     }
 
     .back-btn:hover {
@@ -251,8 +261,10 @@
 
   <!-- エンディング画像 -->
   <div class="ending-image" id="endingImage">
-    <img src="Next-stage/next-stage.png" alt="Next Stage">
-    <a href="https://shirazirashii.github.io/Datsuichi-memorial/#ending" class="back-btn" id="backBtn">&#9664; メインページに戻る</a>
+    <div class="ending-inner">
+      <img src="Next-stage/next-stage.png" alt="Next Stage">
+      <a href="https://shirazirashii.github.io/Datsuichi-memorial/" class="back-btn" id="backBtn">&#9664; メインページに戻る</a>
+    </div>
   </div>
 
   <script>
