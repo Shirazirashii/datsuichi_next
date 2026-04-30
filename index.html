@@ -252,7 +252,7 @@
   <!-- フルスクリーン動画 -->
   <div class="video-wrapper">
     <video id="mainVideo" autoplay playsinline muted>
-      <source src="Next-stage/coming-soon.mp4" type="video/mp4">
+      <source id="videoSource" src="Next-stage/coming-soon.mp4" type="video/mp4">
     </video>
   </div>
 
@@ -298,16 +298,26 @@
 
     // 動画コントロール
     const video = document.getElementById('mainVideo');
+    const videoSource = document.getElementById('videoSource');
     const brand = document.getElementById('brand');
     const blackout = document.getElementById('blackout');
     const endingImage = document.getElementById('endingImage');
     const endingImg = document.getElementById('endingImg');
     const backBtn = document.getElementById('backBtn');
 
-    // PC用・スマホ用の画像を切り替え（414px以下をスマホ）
-    const PC_IMG = 'Next-stage/next-stage.png';
-    const SP_IMG = 'Next-stage/next-stage2.png';
-    endingImg.src = window.innerWidth <= 414 ? SP_IMG : PC_IMG;
+    // PC用・スマホ用の動画・画像を切り替え（414px以下をスマホ）
+    const isSmartphone = window.innerWidth <= 414;
+    const PC_VIDEO = 'Next-stage/coming-soon.mp4';
+    const SP_VIDEO = 'Next-stage/coming-soon2.mp4';
+    const PC_IMG   = 'Next-stage/next-stage.png';
+    const SP_IMG   = 'Next-stage/next-stage2.png';
+
+    if (isSmartphone) {
+      videoSource.src = SP_VIDEO;
+      video.load(); // srcを変えたらload()が必要
+      video.play();
+    }
+    endingImg.src = isSmartphone ? SP_IMG : PC_IMG;
 
     // 動画が進んだらロゴをフェードアウト
     video.addEventListener('timeupdate', () => {
